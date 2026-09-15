@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HoloTable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- LOGIN / SIGNUP VIEW -->
+  <div id="login-view" class="view">
+    <div class="auth-card">
+      <h1>HoloTable</h1>
+      <p class="tagline">A dice, sheet, and scene tracker for FFG-style tabletop play.</p>
+
+      <form id="auth-form">
+        <div class="mode-toggle">
+          <label><input type="radio" name="auth-mode" value="login" checked /> Log in</label>
+          <label><input type="radio" name="auth-mode" value="signup" /> Sign up</label>
+        </div>
+
+        <label class="field">
+          <span>Display name (sign up only)</span>
+          <input type="text" id="name-input" placeholder="What players will see" />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="email-input" required />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input type="password" id="password-input" required minlength="6" />
+        </label>
+
+        <p id="auth-error" class="error"></p>
+
+        <button type="submit" class="primary-btn">Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP VIEW (after login) -->
+  <div id="app-view" class="view hidden">
+    <header class="app-header">
+      <h1>HoloTable</h1>
+      <div class="header-right">
+        <span id="current-user-label"></span>
+        <button id="logout-btn" class="text-btn">Log out</button>
+      </div>
+    </header>
+
+    <main class="campaign-screen">
+      <section class="campaign-panel">
+        <h2>Your campaigns</h2>
+        <ul id="campaign-list" class="campaign-list"></ul>
+      </section>
+
+      <section class="campaign-actions">
+        <div class="action-card">
+          <h3>Start a campaign</h3>
+          <form id="create-campaign-form">
+            <input type="text" id="new-campaign-name" placeholder="Campaign name" required />
+            <button type="submit" class="primary-btn">Create</button>
+          </form>
+        </div>
+
+        <div class="action-card">
+          <h3>Join a campaign</h3>
+          <form id="join-campaign-form">
+            <input type="text" id="join-campaign-code" placeholder="Join code (e.g. RX7K-92QF)" required />
+            <button type="submit" class="secondary-btn">Join</button>
+          </form>
+        </div>
+
+        <p id="campaign-error" class="error"></p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/campaigns.js"></script>
+</body>
+</html>
