@@ -20,6 +20,52 @@ async function logOut() {
   await auth.signOut();
 }
 
+// --- Live profile info for the logged-in user, kept in sync with users/{uid} ---
+let currentUserProfile = { displayName: "", email: "" };
+
+async function loadCurrentUserProfile(uid, fallbackEmail) {
+  const doc = await db.collection("users").doc(uid).get();
+  const data = doc.exists ? doc.data() : {};
+  currentUserProfile = {
+    displayName: data.displayName || fallbackEmail.split("@")[0],
+    email: fallbackEmail
+  };
+  document.getElementById("current-user-label").textContent = currentUserProfile.displayName;
+}
+
+async function updateDisplayName(uid, newName) {
+  await db.collection("users").doc(uid).set({ displayName: newName }, { merge: true });
+  currentUserProfile.displayName = newName;
+  document.getElementById("current-user-label").textContent = newName;
+}
+
+document.getElementById("edit-name-btn").addEventListener("click", () => {
+  const labelEl = document.getElementById("current-user-label");
+  const current = currentUserProfile.displayName;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = current;
+  input.className = "name-edit-input";
+  labelEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  const commit = async () => {
+    const newName = input.value.trim() || current;
+    const span = document.createElement("span");
+    span.id = "current-user-label";
+    span.textContent = newName;
+    input.replaceWith(span);
+    if (newName !== current) {
+      await updateDisplayName(auth.currentUser.uid, newName);
+    }
+  };
+
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+  input.addEventListener("blur", commit, { once: true });
+});
+
 // --- Watch auth state, route between login screen and app screen ---
 auth.onAuthStateChanged((user) => {
   const loginView = document.getElementById("login-view");
@@ -27,7 +73,7 @@ auth.onAuthStateChanged((user) => {
   if (user) {
     loginView.classList.add("hidden");
     appView.classList.remove("hidden");
-    document.getElementById("current-user-label").textContent = user.email;
+    loadCurrentUserProfile(user.uid, user.email);
     loadCampaigns(user.uid);
     startContentListeners();
   } else {

@@ -34,7 +34,7 @@ document.getElementById("roll-dice-btn").addEventListener("click", async () => {
 
   await db.collection("campaigns").doc(activeCampaignId).collection("rolls").add({
     rollerUid: user.uid,
-    rollerName: user.email,
+    rollerName: currentUserProfile.displayName || user.email,
     pool: { ...currentPool },
     diceResults: result.diceResults,
     net: result.net,

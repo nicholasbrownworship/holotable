@@ -1,5 +1,16 @@
 
 /* --- Top nav --- */
+.name-edit-input {
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  width: 140px;
+}
+
 .main-nav {
   display: flex;
   gap: 6px;
