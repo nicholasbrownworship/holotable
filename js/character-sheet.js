@@ -1,4 +1,5 @@
 let activeCampaignId = null;
+let activeRole = null;
 let activeCharacterUnsub = null;
 
 // Repeatable list state for gear/weapons/armor while editing
@@ -6,17 +7,22 @@ let sheetState = { gear: [], weapons: [], armor: [], skillRanks: {}, talentIds: 
 
 function enterCampaign(campaignId, role) {
   activeCampaignId = campaignId;
+  activeRole = role;
   document.getElementById("campaign-screen-view").classList.add("hidden");
   document.getElementById("campaign-workspace-view").classList.remove("hidden");
   document.getElementById("workspace-role-label").textContent = role === "gm" ? "GM view" : "Player view";
+  document.body.classList.toggle("is-gm", role === "gm");
   loadCharacterSheet(campaignId);
   startRollLog(campaignId);
+  startMapView(campaignId);
 }
 
 function exitCampaign() {
   if (activeCharacterUnsub) activeCharacterUnsub();
   stopRollLog();
+  stopMapView();
   activeCampaignId = null;
+  activeRole = null;
   document.getElementById("campaign-workspace-view").classList.add("hidden");
   document.getElementById("campaign-screen-view").classList.remove("hidden");
 }

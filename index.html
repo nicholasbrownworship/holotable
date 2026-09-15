@@ -187,6 +187,7 @@
         <nav class="sub-nav">
           <button class="sub-nav-btn active" data-subnav="sheet-panel-view">Character Sheet</button>
           <button class="sub-nav-btn" data-subnav="dice-panel-view">Dice Pool</button>
+          <button class="sub-nav-btn" data-subnav="map-panel-view">Map</button>
         </nav>
       </div>
 
@@ -262,6 +263,39 @@
           <section class="roll-log-panel">
             <h3>Roll log</h3>
             <ul id="roll-log" class="roll-log"></ul>
+          </section>
+        </div>
+      </div>
+
+      <div id="map-panel-view" class="sub-view hidden">
+        <div class="map-layout">
+          <section id="gm-scene-manager" class="scene-manager-panel gm-only">
+            <h3>Scenes</h3>
+            <form id="create-scene-form" class="library-form">
+              <input type="text" id="scene-name" placeholder="Scene name" required />
+              <input type="file" id="scene-image-input" accept="image/*" required />
+              <button type="submit" class="secondary-btn small">Upload &amp; create scene</button>
+              <span id="scene-upload-status" class="upload-status"></span>
+            </form>
+            <ul id="scene-list" class="content-list"></ul>
+
+            <h3 class="npc-heading">Add NPC/enemy token</h3>
+            <form id="add-npc-form" class="library-form inline-form">
+              <input type="text" id="npc-name" placeholder="NPC name" required />
+              <button type="submit" class="secondary-btn small">Add to active scene</button>
+            </form>
+          </section>
+
+          <section class="active-scene-panel">
+            <div id="no-active-scene" class="library-note">No active scene set yet.</div>
+            <div id="active-scene-content" class="hidden">
+              <h3 id="active-scene-name"></h3>
+              <img id="active-scene-image" class="scene-image" alt="Current scene" />
+              <div id="join-scene-bar" class="hidden">
+                <button id="join-scene-btn" class="secondary-btn small">Add my character to this scene</button>
+              </div>
+              <div id="zone-columns" class="zone-columns"></div>
+            </div>
           </section>
         </div>
       </div>
@@ -358,6 +392,7 @@
   <script src="js/content.js"></script>
   <script src="js/dice-engine.js"></script>
   <script src="js/character-sheet.js"></script>
+  <script src="js/map.js"></script>
   <script src="js/dice-roller.js"></script>
   <script src="js/campaigns.js"></script>
   <script src="js/nav.js"></script>

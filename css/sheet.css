@@ -1,5 +1,139 @@
 
 /* --- Top nav --- */
+/* --- GM-only visibility --- */
+body:not(.is-gm) .gm-only {
+  display: none;
+}
+
+/* --- Map / scene manager --- */
+.map-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) {
+  .map-layout { grid-template-columns: 1fr; }
+}
+
+.scene-manager-panel, .active-scene-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.scene-manager-panel h3 {
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.npc-heading {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.inline-form {
+  flex-direction: row !important;
+  gap: 8px !important;
+}
+
+.inline-form input { flex: 1; }
+
+.upload-status {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.scene-list-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.scene-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: #000;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin: 12px 0 20px;
+}
+
+#join-scene-bar {
+  margin-bottom: 16px;
+}
+
+.zone-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.zone-column {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  background: var(--bg);
+}
+
+.zone-column h4 {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.zone-tokens {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.zone-empty {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  text-align: center;
+  margin: 0;
+}
+
+.token-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+}
+
+.token-chip.token-pc { border-color: var(--accent-dim); }
+.token-chip.token-npc { border-color: #7a3b30; }
+
+.token-name { flex: 1; }
+
+.token-zone-select {
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+}
+
+.remove-token-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
 .name-edit-input {
   background: var(--bg);
   border: 1px solid var(--accent-dim);
