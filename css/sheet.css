@@ -55,44 +55,53 @@ body:not(.is-gm) .gm-only {
 
 .scene-image {
   width: 100%;
-  max-height: 420px;
+  max-height: 480px;
   object-fit: contain;
   background: #000;
   border-radius: 6px;
   border: 1px solid var(--border);
-  margin: 12px 0 20px;
 }
 
 #join-scene-bar {
   margin-bottom: 16px;
 }
 
-.zone-columns {
+.scene-stage {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr 220px;
+  gap: 14px;
+  align-items: start;
 }
 
-.zone-column {
+@media (max-width: 700px) {
+  .scene-stage { grid-template-columns: 1fr; }
+}
+
+.zone-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zone-row {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px;
   background: var(--bg);
 }
 
-.zone-column h4 {
+.zone-row h4 {
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
   margin: 0 0 8px;
-  text-align: center;
 }
 
 .zone-tokens {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 40px;
+  min-height: 30px;
 }
 
 .zone-empty {

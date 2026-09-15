@@ -134,7 +134,7 @@ function renderActiveScene(scene) {
   document.getElementById("zone-columns").innerHTML = zones.map((zone) => {
     const zoneTokens = tokens.filter((t) => t.zone === zone);
     return `
-      <div class="zone-column">
+      <div class="zone-row">
         <h4>${zone}</h4>
         <div class="zone-tokens">
           ${zoneTokens.map((t) => renderToken(t, zones)).join("") || '<p class="zone-empty">\u2014</p>'}
