@@ -88,11 +88,172 @@
   color: var(--text-dim);
 }
 
+/* --- Sub-nav within a campaign workspace --- */
+.sub-nav {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.sub-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sub-nav-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- Dice pool builder --- */
+.dice-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) {
+  .dice-layout { grid-template-columns: 1fr; }
+}
+
+.dice-builder-panel, .roll-log-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.dice-builder-panel h3, .roll-log-panel h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.die-group {
+  margin-bottom: 16px;
+}
+
+.die-group-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.die-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.die-type-label {
+  flex: 1;
+  font-size: 0.85rem;
+  padding-left: 10px;
+  border-left: 3px solid var(--border);
+}
+
+.die-color-ability { border-color: #5fae5f; }
+.die-color-proficiency { border-color: #d9c441; }
+.die-color-difficulty { border-color: #9a6fd9; }
+.die-color-challenge { border-color: #d9614b; }
+.die-color-boost { border-color: #5f9dd9; }
+.die-color-setback { border-color: #5a5f66; }
+.die-color-force { border-color: #d8dde3; }
+
+.die-minus, .die-plus {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.die-count {
+  width: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.dice-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.roll-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.roll-entry {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.roll-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.roll-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.result-badge {
+  font-size: 0.72rem;
+  border-radius: 3px;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.result-badge.success { color: #6fbf73; border-color: #3f6b41; }
+.result-badge.failure { color: #d9705c; border-color: #7a3b30; }
+.result-badge.advantage { color: #5fa8d9; border-color: #345f7a; }
+.result-badge.threat { color: #d9a441; border-color: #7a5f26; }
+.result-badge.triumph { color: #f0d84a; border-color: #8a7c1f; }
+.result-badge.despair { color: #d94b7c; border-color: #7a2a47; }
+.result-badge.light-force { color: #e7e9ec; border-color: #6b6f76; }
+.result-badge.dark-force { color: #9a9fa8; border-color: #45484e; }
+
+.roll-dice-breakdown {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.die-face {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
 .library-panel.full-span {
   grid-column: 1 / -1;
 }
-
-.talent-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;

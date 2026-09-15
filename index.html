@@ -178,13 +178,94 @@
       </div>
     </main>
 
-    <!-- CAMPAIGN WORKSPACE (character sheet) -->
+    <!-- CAMPAIGN WORKSPACE (character sheet + dice pool) -->
     <main id="campaign-workspace-view" class="nav-view hidden">
       <div class="workspace-header">
         <button id="leave-campaign-btn" class="text-btn">&larr; Back to campaigns</button>
         <span id="workspace-role-label" class="tag"></span>
+        <nav class="sub-nav">
+          <button class="sub-nav-btn active" data-subnav="sheet-panel-view">Character Sheet</button>
+          <button class="sub-nav-btn" data-subnav="dice-panel-view">Dice Pool</button>
+        </nav>
       </div>
 
+      <div id="dice-panel-view" class="sub-view hidden">
+        <div class="dice-layout">
+          <section class="dice-builder-panel">
+            <h3>Build your pool</h3>
+
+            <div class="die-group">
+              <span class="die-group-label">Skill dice</span>
+              <div class="die-stepper" data-die-type="ability">
+                <span class="die-type-label die-color-ability">Ability</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+              <div class="die-stepper" data-die-type="proficiency">
+                <span class="die-type-label die-color-proficiency">Proficiency</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+            </div>
+
+            <div class="die-group">
+              <span class="die-group-label">Opposition dice</span>
+              <div class="die-stepper" data-die-type="difficulty">
+                <span class="die-type-label die-color-difficulty">Difficulty</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+              <div class="die-stepper" data-die-type="challenge">
+                <span class="die-type-label die-color-challenge">Challenge</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+            </div>
+
+            <div class="die-group">
+              <span class="die-group-label">Situational dice</span>
+              <div class="die-stepper" data-die-type="boost">
+                <span class="die-type-label die-color-boost">Boost</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+              <div class="die-stepper" data-die-type="setback">
+                <span class="die-type-label die-color-setback">Setback</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+            </div>
+
+            <div class="die-group">
+              <span class="die-group-label">Force</span>
+              <div class="die-stepper" data-die-type="force">
+                <span class="die-type-label die-color-force">Force</span>
+                <button type="button" class="die-minus">&minus;</button>
+                <span class="die-count">0</span>
+                <button type="button" class="die-plus">+</button>
+              </div>
+            </div>
+
+            <div class="dice-action-bar">
+              <button id="roll-dice-btn" class="primary-btn small">Roll</button>
+              <button id="clear-pool-btn" class="text-btn">Clear pool</button>
+            </div>
+          </section>
+
+          <section class="roll-log-panel">
+            <h3>Roll log</h3>
+            <ul id="roll-log" class="roll-log"></ul>
+          </section>
+        </div>
+      </div>
+
+      <div id="sheet-panel-view" class="sub-view">
       <form id="character-sheet-form" class="sheet-form">
         <div class="sheet-grid">
           <section class="sheet-panel">
@@ -262,6 +343,7 @@
           <span id="sheet-save-status"></span>
         </div>
       </form>
+      </div>
     </main>
   </div>
 
@@ -273,7 +355,9 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/content.js"></script>
+  <script src="js/dice-engine.js"></script>
   <script src="js/character-sheet.js"></script>
+  <script src="js/dice-roller.js"></script>
   <script src="js/campaigns.js"></script>
   <script src="js/nav.js"></script>
 </body>

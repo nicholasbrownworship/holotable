@@ -10,10 +10,12 @@ function enterCampaign(campaignId, role) {
   document.getElementById("campaign-workspace-view").classList.remove("hidden");
   document.getElementById("workspace-role-label").textContent = role === "gm" ? "GM view" : "Player view";
   loadCharacterSheet(campaignId);
+  startRollLog(campaignId);
 }
 
 function exitCampaign() {
   if (activeCharacterUnsub) activeCharacterUnsub();
+  stopRollLog();
   activeCampaignId = null;
   document.getElementById("campaign-workspace-view").classList.add("hidden");
   document.getElementById("campaign-screen-view").classList.remove("hidden");
