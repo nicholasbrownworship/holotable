@@ -151,13 +151,12 @@
           <form id="talent-form" class="library-form">
             <input type="text" id="talent-name" placeholder="Talent name" required />
             <div class="char-grid-inputs three">
-              <input type="number" id="talent-tier" placeholder="Tier (1-5)" min="1" max="5" required />
               <select id="talent-activation" required>
                 <option value="">-- Activation --</option>
                 <option>Passive</option><option>Active (Action)</option>
                 <option>Active (Maneuver)</option><option>Active (Incidental)</option>
               </select>
-              <label class="checkbox-field"><input type="checkbox" id="talent-ranked" /> Ranked</label>
+              <label class="checkbox-field"><input type="checkbox" id="talent-ranked" /> Ranked (can be taken multiple times)</label>
             </div>
             <textarea id="talent-effect" placeholder="Mechanical effect (your own short summary)" rows="2" required></textarea>
             <button type="submit" class="secondary-btn">Add talent</button>
@@ -165,15 +164,13 @@
           <ul id="talents-list" class="content-list"></ul>
         </section>
 
-        <section class="library-panel">
+        <section class="library-panel full-span">
           <h3>Specializations</h3>
           <form id="specialization-form" class="library-form">
             <input type="text" id="specialization-name" placeholder="Specialization name" required />
             <input type="text" id="specialization-career-note" placeholder="Associated career (optional note)" />
-            <label class="field">
-              <span>Talents in this tree (ctrl/cmd-click for multiple)</span>
-              <select id="specialization-talents-select" multiple size="6"></select>
-            </label>
+            <p class="library-note">Assign a talent to any cell you want filled (a tree doesn't need all 16 used). Cost defaults by row (5/10/15/20 XP) — check your book and adjust if it differs. Prerequisites list other filled cells that must be owned first.</p>
+            <div id="spec-grid" class="talent-grid"></div>
             <button type="submit" class="secondary-btn">Add specialization</button>
           </form>
           <ul id="specializations-list" class="content-list"></ul>

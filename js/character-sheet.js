@@ -41,7 +41,7 @@ function refreshCharacterDropdowns() {
     specSelect.innerHTML = contentCache.specializations.map((sp) => `<option value="${sp.id}">${sp.name}</option>`).join("");
   }
   if (talentSelect) {
-    talentSelect.innerHTML = contentCache.talents.map((t) => `<option value="${t.id}">${t.name} (T${t.tier})</option>`).join("");
+    talentSelect.innerHTML = contentCache.talents.map((t) => `<option value="${t.id}">${t.name}${t.ranked ? " (Ranked)" : ""}</option>`).join("");
   }
   weaponSkillSelects.forEach((sel) => {
     const current = sel.value;
