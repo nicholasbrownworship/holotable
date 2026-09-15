@@ -443,8 +443,45 @@ function moveToken(tokenId, newZone) {
   withActiveScene((tokens) => tokens.map((t) => t.id === tokenId ? { ...t, zone: newZone } : t));
 }
 
-function removeToken(tokenId) {
-  withActiveScene((tokens) => tokens.filter((t) => t.id !== tokenId));
+async function removeToken(tokenId) {
+  if (!currentActiveSceneId) return;
+  const ref = db.collection("campaigns").doc(activeCampaignId).collection("scenes").doc(currentActiveSceneId);
+
+  await db.runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    const data = doc.data();
+    const tokens = (data.tokens || []).filter((t) => t.id !== tokenId);
+    const update = { tokens };
+
+    const enc = data.encounter;
+    if (enc && enc.active && enc.slots?.length) {
+      let currentSlotIndex = enc.currentSlotIndex;
+      const newSlots = [];
+
+      enc.slots.forEach((slot, i) => {
+        if (slot.type === "npc") {
+          const remainingIds = slot.tokenIds.filter((id) => id !== tokenId);
+          if (remainingIds.length === 0) {
+            // whole type wiped out — drop the slot entirely
+            if (i < currentSlotIndex) currentSlotIndex -= 1;
+            return;
+          }
+          newSlots.push({ ...slot, tokenIds: remainingIds });
+        } else {
+          newSlots.push(slot.occupantTokenId === tokenId ? { ...slot, occupantTokenId: null } : slot);
+        }
+      });
+
+      if (newSlots.length === 0) {
+        update.encounter = { active: false, round: 1, currentSlotIndex: 0, slots: [] };
+      } else {
+        if (currentSlotIndex >= newSlots.length) currentSlotIndex = newSlots.length - 1;
+        update.encounter = { ...enc, slots: newSlots, currentSlotIndex };
+      }
+    }
+
+    tx.update(ref, update);
+  });
 }
 
 document.getElementById("join-scene-btn").addEventListener("click", () => {
