@@ -15,12 +15,14 @@ function enterCampaign(campaignId, role) {
   loadCharacterSheet(campaignId);
   startRollLog(campaignId);
   startMapView(campaignId);
+  startChat(campaignId);
 }
 
 function exitCampaign() {
   if (activeCharacterUnsub) activeCharacterUnsub();
   stopRollLog();
   stopMapView();
+  stopChat();
   activeCampaignId = null;
   activeRole = null;
   document.getElementById("campaign-workspace-view").classList.add("hidden");

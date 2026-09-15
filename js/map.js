@@ -242,52 +242,6 @@ function renderPingMarker(ping) {
   setTimeout(() => marker.remove(), 2200);
 }
 
-// --- Text chat ---
-let chatUnsub = null;
-
-document.getElementById("chat-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const input = document.getElementById("chat-input");
-  const text = input.value.trim();
-  if (!text || !activeCampaignId) return;
-  db.collection("campaigns").doc(activeCampaignId).collection("messages").add({
-    senderUid: auth.currentUser.uid,
-    senderName: currentUserProfile.displayName,
-    text,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  input.value = "";
-});
-
-function startChat(campaignId) {
-  stopChat();
-  chatUnsub = db.collection("campaigns").doc(campaignId).collection("messages")
-    .orderBy("createdAt", "desc")
-    .limit(100)
-    .onSnapshot((snapshot) => {
-      const messages = [];
-      snapshot.forEach((doc) => messages.push(doc.data()));
-      messages.reverse();
-      const logEl = document.getElementById("chat-log");
-      logEl.innerHTML = messages.map((m) => `
-        <li class="chat-message">
-          <strong>${m.senderName}:</strong> <span>${escapeHtml(m.text)}</span>
-        </li>
-      `).join("");
-      logEl.scrollTop = logEl.scrollHeight;
-    });
-}
-
-function stopChat() {
-  if (chatUnsub) { chatUnsub(); chatUnsub = null; }
-}
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 // --- Encounter builder (GM: pick players + add enemies, place into starting zones) ---
 let builderEnemyRows = [];
 
@@ -678,8 +632,6 @@ function startMapView(campaignId) {
       });
     startPings(campaignId, currentActiveSceneId);
   });
-
-  startChat(campaignId);
 }
 
 function stopMapView() {
@@ -687,7 +639,6 @@ function stopMapView() {
   if (campaignDocUnsub) { campaignDocUnsub(); campaignDocUnsub = null; }
   if (activeSceneUnsub) { activeSceneUnsub(); activeSceneUnsub = null; }
   stopPings();
-  stopChat();
   currentActiveSceneId = null;
   latestSceneData = null;
   document.getElementById("encounter-builder").classList.add("hidden");

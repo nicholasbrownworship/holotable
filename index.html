@@ -334,9 +334,9 @@
 
       <div id="chat-panel-view" class="sub-view hidden">
         <div class="chat-panel">
-          <ul id="chat-log" class="chat-log"></ul>
-          <form id="chat-form" class="chat-input-bar">
-            <input type="text" id="chat-input" placeholder="Message the table..." autocomplete="off" required />
+          <ul id="full-chat-log" class="chat-log"></ul>
+          <form id="full-chat-form" class="chat-input-bar">
+            <input type="text" id="full-chat-input" placeholder="Message the table..." autocomplete="off" required />
             <button type="submit" class="primary-btn small">Send</button>
           </form>
         </div>
@@ -421,6 +421,24 @@
         </div>
       </form>
       </div>
+      <div id="floating-chat" class="floating-chat">
+        <button id="floating-chat-toggle" class="floating-chat-toggle">
+          Chat
+          <span id="floating-chat-badge" class="floating-chat-badge hidden">0</span>
+        </button>
+        <div id="floating-chat-panel" class="floating-chat-panel hidden">
+          <div class="floating-chat-header">
+            <span>Chat</span>
+            <button id="floating-chat-close" class="text-btn">Close</button>
+          </div>
+          <ul id="floating-chat-log" class="chat-log floating-chat-log"></ul>
+          <form id="floating-chat-form" class="chat-input-bar">
+            <input type="text" id="floating-chat-input" placeholder="Message the table..." autocomplete="off" required />
+            <button type="submit" class="primary-btn small">Send</button>
+          </form>
+        </div>
+        <div id="floating-chat-toast" class="floating-chat-toast hidden"></div>
+      </div>
     </main>
   </div>
 
@@ -435,6 +453,7 @@
   <script src="js/dice-engine.js"></script>
   <script src="js/character-sheet.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/chat.js"></script>
   <script src="js/dice-roller.js"></script>
   <script src="js/campaigns.js"></script>
   <script src="js/nav.js"></script>

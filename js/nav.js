@@ -13,5 +13,13 @@ document.querySelectorAll(".sub-nav-btn").forEach((btn) => {
     btn.classList.add("active");
     document.querySelectorAll(".sub-view").forEach((v) => v.classList.add("hidden"));
     document.getElementById(btn.dataset.subnav).classList.remove("hidden");
+
+    const floatingChat = document.getElementById("floating-chat");
+    if (btn.dataset.subnav === "chat-panel-view") {
+      floatingChat.classList.add("hidden");
+      if (typeof markChatRead === "function") markChatRead();
+    } else {
+      floatingChat.classList.remove("hidden");
+    }
   });
 });
