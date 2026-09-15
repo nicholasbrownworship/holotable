@@ -55,11 +55,7 @@ function loadCampaigns(uid) {
 
       document.querySelectorAll(".enter-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          // v1 placeholder: GM view and player view get built next.
-          // This is where we'll route to campaign.html?id=...&role=...
-          const id = btn.dataset.id;
-          const role = btn.dataset.role;
-          alert(`Entering campaign ${id} as ${role} \u2014 next build step wires this to the real GM/player views.`);
+          enterCampaign(btn.dataset.id, btn.dataset.role);
         });
       });
     });

@@ -1,0 +1,257 @@
+
+/* --- Top nav --- */
+.main-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.nav-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nav-view { padding: 32px; }
+
+/* --- Content Library --- */
+.library-note {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  max-width: 700px;
+  margin: 0 0 20px;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.library-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px;
+}
+
+.library-panel h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.library-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.library-form input,
+.library-form select,
+.library-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.char-grid-inputs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.char-grid-inputs.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.content-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.content-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-size: 0.82rem;
+}
+
+.content-item-main { display: flex; flex-direction: column; gap: 2px; }
+.content-item-sub { color: var(--text-dim); font-size: 0.75rem; }
+.content-item-effect { color: var(--text-dim); font-size: 0.75rem; margin: 4px 0 0; }
+
+.tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-left: 4px;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* --- Campaign workspace / character sheet --- */
+.workspace-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .sheet-grid { grid-template-columns: 1fr; }
+}
+
+.sheet-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.sheet-panel.full-width {
+  grid-column: 1 / -1;
+}
+
+.sheet-panel h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.sheet-panel select[multiple] {
+  padding: 6px;
+}
+
+.skills-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.skill-row.career-skill {
+  border-color: var(--accent-dim);
+  background: rgba(217, 164, 65, 0.07);
+}
+
+.skill-name em { color: var(--text-dim); font-style: normal; font-size: 0.72rem; }
+
+.skill-rank-input {
+  width: 48px;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  text-align: center;
+}
+
+.repeatable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.repeatable-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.repeatable-row input,
+.repeatable-row select {
+  padding: 7px 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+
+.remove-row-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.secondary-btn.small, .primary-btn.small {
+  padding: 7px 14px;
+  font-size: 0.78rem;
+}
+
+.sheet-save-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+#sheet-save-status {
+  color: var(--accent);
+  font-size: 0.8rem;
+}

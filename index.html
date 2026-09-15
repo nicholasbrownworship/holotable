@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/sheet.css" />
 </head>
 <body>
 
@@ -48,13 +49,18 @@
   <div id="app-view" class="view hidden">
     <header class="app-header">
       <h1>HoloTable</h1>
+      <nav class="main-nav">
+        <button class="nav-btn active" data-nav="campaign-screen-view">Campaigns</button>
+        <button class="nav-btn" data-nav="content-library-view">Content Library</button>
+      </nav>
       <div class="header-right">
         <span id="current-user-label"></span>
         <button id="logout-btn" class="text-btn">Log out</button>
       </div>
     </header>
 
-    <main class="campaign-screen">
+    <!-- CAMPAIGN LIST -->
+    <main id="campaign-screen-view" class="nav-view campaign-screen">
       <section class="campaign-panel">
         <h2>Your campaigns</h2>
         <ul id="campaign-list" class="campaign-list"></ul>
@@ -80,6 +86,186 @@
         <p id="campaign-error" class="error"></p>
       </section>
     </main>
+
+    <!-- CONTENT LIBRARY -->
+    <main id="content-library-view" class="nav-view hidden">
+      <p class="library-note">Entered here once, reused by every campaign and every character sheet's dropdowns.</p>
+
+      <div class="library-grid">
+        <section class="library-panel">
+          <h3>Species</h3>
+          <form id="species-form" class="library-form">
+            <input type="text" id="species-name" placeholder="Name" required />
+            <div class="char-grid-inputs">
+              <input type="number" id="species-brawn" placeholder="Brawn" min="0" required />
+              <input type="number" id="species-agility" placeholder="Agility" min="0" required />
+              <input type="number" id="species-intellect" placeholder="Intellect" min="0" required />
+              <input type="number" id="species-cunning" placeholder="Cunning" min="0" required />
+              <input type="number" id="species-willpower" placeholder="Willpower" min="0" required />
+              <input type="number" id="species-presence" placeholder="Presence" min="0" required />
+            </div>
+            <div class="char-grid-inputs three">
+              <input type="number" id="species-wound-threshold" placeholder="Wound Threshold" min="0" required />
+              <input type="number" id="species-strain-threshold" placeholder="Strain Threshold" min="0" required />
+              <input type="number" id="species-starting-xp" placeholder="Starting XP" min="0" required />
+            </div>
+            <textarea id="species-special-ability" placeholder="Special ability (short)" rows="2"></textarea>
+            <button type="submit" class="secondary-btn">Add species</button>
+          </form>
+          <ul id="species-list" class="content-list"></ul>
+        </section>
+
+        <section class="library-panel">
+          <h3>Skills</h3>
+          <form id="skill-form" class="library-form">
+            <input type="text" id="skill-name" placeholder="Skill name" required />
+            <select id="skill-characteristic" required>
+              <option value="">-- Characteristic --</option>
+              <option>Brawn</option><option>Agility</option><option>Intellect</option>
+              <option>Cunning</option><option>Willpower</option><option>Presence</option>
+            </select>
+            <select id="skill-category" required>
+              <option value="">-- Category --</option>
+              <option>General</option><option>Combat</option><option>Knowledge</option>
+            </select>
+            <button type="submit" class="secondary-btn">Add skill</button>
+          </form>
+          <ul id="skills-list" class="content-list"></ul>
+        </section>
+
+        <section class="library-panel">
+          <h3>Careers</h3>
+          <form id="career-form" class="library-form">
+            <input type="text" id="career-name" placeholder="Career name" required />
+            <label class="field">
+              <span>Career skills (ctrl/cmd-click for multiple)</span>
+              <select id="career-skills-select" multiple size="6"></select>
+            </label>
+            <button type="submit" class="secondary-btn">Add career</button>
+          </form>
+          <ul id="careers-list" class="content-list"></ul>
+        </section>
+
+        <section class="library-panel">
+          <h3>Talents</h3>
+          <form id="talent-form" class="library-form">
+            <input type="text" id="talent-name" placeholder="Talent name" required />
+            <div class="char-grid-inputs three">
+              <input type="number" id="talent-tier" placeholder="Tier (1-5)" min="1" max="5" required />
+              <select id="talent-activation" required>
+                <option value="">-- Activation --</option>
+                <option>Passive</option><option>Active (Action)</option>
+                <option>Active (Maneuver)</option><option>Active (Incidental)</option>
+              </select>
+              <label class="checkbox-field"><input type="checkbox" id="talent-ranked" /> Ranked</label>
+            </div>
+            <textarea id="talent-effect" placeholder="Mechanical effect (your own short summary)" rows="2" required></textarea>
+            <button type="submit" class="secondary-btn">Add talent</button>
+          </form>
+          <ul id="talents-list" class="content-list"></ul>
+        </section>
+
+        <section class="library-panel">
+          <h3>Specializations</h3>
+          <form id="specialization-form" class="library-form">
+            <input type="text" id="specialization-name" placeholder="Specialization name" required />
+            <input type="text" id="specialization-career-note" placeholder="Associated career (optional note)" />
+            <label class="field">
+              <span>Talents in this tree (ctrl/cmd-click for multiple)</span>
+              <select id="specialization-talents-select" multiple size="6"></select>
+            </label>
+            <button type="submit" class="secondary-btn">Add specialization</button>
+          </form>
+          <ul id="specializations-list" class="content-list"></ul>
+        </section>
+      </div>
+    </main>
+
+    <!-- CAMPAIGN WORKSPACE (character sheet) -->
+    <main id="campaign-workspace-view" class="nav-view hidden">
+      <div class="workspace-header">
+        <button id="leave-campaign-btn" class="text-btn">&larr; Back to campaigns</button>
+        <span id="workspace-role-label" class="tag"></span>
+      </div>
+
+      <form id="character-sheet-form" class="sheet-form">
+        <div class="sheet-grid">
+          <section class="sheet-panel">
+            <h3>Identity</h3>
+            <label class="field"><span>Name</span><input type="text" id="char-name" required /></label>
+            <label class="field"><span>Species</span><select id="char-species"></select></label>
+            <label class="field"><span>Career</span><select id="char-career"></select></label>
+            <label class="field">
+              <span>Specializations (ctrl/cmd-click for multiple)</span>
+              <select id="char-specializations" multiple size="4"></select>
+            </label>
+            <label class="field">
+              <span>Talents acquired (ctrl/cmd-click for multiple)</span>
+              <select id="char-talents-select" multiple size="4"></select>
+            </label>
+            <label class="field"><span>Motivation</span><input type="text" id="char-motivation" /></label>
+            <label class="field"><span>Obligation / Duty / Morality</span><input type="text" id="char-obligation" /></label>
+            <label class="field"><span>Background / notes</span><textarea id="char-background" rows="3"></textarea></label>
+          </section>
+
+          <section class="sheet-panel">
+            <h3>Characteristics &amp; Derived Stats</h3>
+            <div class="char-grid-inputs">
+              <label class="field"><span>Brawn</span><input type="number" id="char-brawn" min="1" max="6" /></label>
+              <label class="field"><span>Agility</span><input type="number" id="char-agility" min="1" max="6" /></label>
+              <label class="field"><span>Intellect</span><input type="number" id="char-intellect" min="1" max="6" /></label>
+              <label class="field"><span>Cunning</span><input type="number" id="char-cunning" min="1" max="6" /></label>
+              <label class="field"><span>Willpower</span><input type="number" id="char-willpower" min="1" max="6" /></label>
+              <label class="field"><span>Presence</span><input type="number" id="char-presence" min="1" max="6" /></label>
+            </div>
+            <div class="char-grid-inputs three">
+              <label class="field"><span>Wound Threshold</span><input type="number" id="char-wound-threshold" min="0" /></label>
+              <label class="field"><span>Strain Threshold</span><input type="number" id="char-strain-threshold" min="0" /></label>
+              <label class="field"><span>Soak</span><input type="number" id="char-soak" min="0" /></label>
+            </div>
+            <div class="char-grid-inputs three">
+              <label class="field"><span>Defense</span><input type="number" id="char-defense" min="0" /></label>
+              <label class="field"><span>Force Rating</span><input type="number" id="char-force-rating" min="0" /></label>
+              <label class="field"><span>Credits</span><input type="number" id="char-credits" min="0" /></label>
+            </div>
+            <div class="char-grid-inputs three">
+              <label class="field"><span>Encumbrance Threshold</span><input type="number" id="char-encumbrance-threshold" min="0" /></label>
+              <label class="field"><span>XP Total</span><input type="number" id="char-xp-total" min="0" /></label>
+              <label class="field"><span>XP Spent</span><input type="number" id="char-xp-spent" min="0" /></label>
+            </div>
+          </section>
+
+          <section class="sheet-panel full-width">
+            <h3>Skills</h3>
+            <p class="library-note">Career skills (from your chosen career) are highlighted.</p>
+            <div id="char-skills-table" class="skills-table"></div>
+          </section>
+
+          <section class="sheet-panel full-width">
+            <h3>Gear</h3>
+            <div id="char-gear-list" class="repeatable-list"></div>
+            <button type="button" id="add-gear-btn" class="secondary-btn small">+ Add gear</button>
+          </section>
+
+          <section class="sheet-panel full-width">
+            <h3>Weapons</h3>
+            <div id="char-weapons-list" class="repeatable-list"></div>
+            <button type="button" id="add-weapons-btn" class="secondary-btn small">+ Add weapon</button>
+          </section>
+
+          <section class="sheet-panel full-width">
+            <h3>Armor</h3>
+            <div id="char-armor-list" class="repeatable-list"></div>
+            <button type="button" id="add-armor-btn" class="secondary-btn small">+ Add armor</button>
+          </section>
+        </div>
+
+        <div class="sheet-save-bar">
+          <button type="submit" class="primary-btn small">Save character</button>
+          <span id="sheet-save-status"></span>
+        </div>
+      </form>
+    </main>
   </div>
 
   <!-- Firebase SDKs -->
@@ -89,6 +275,9 @@
 
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/character-sheet.js"></script>
   <script src="js/campaigns.js"></script>
+  <script src="js/nav.js"></script>
 </body>
 </html>

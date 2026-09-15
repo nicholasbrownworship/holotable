@@ -29,6 +29,7 @@ auth.onAuthStateChanged((user) => {
     appView.classList.remove("hidden");
     document.getElementById("current-user-label").textContent = user.email;
     loadCampaigns(user.uid);
+    startContentListeners();
   } else {
     loginView.classList.remove("hidden");
     appView.classList.add("hidden");
