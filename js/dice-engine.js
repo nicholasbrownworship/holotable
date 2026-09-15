@@ -42,8 +42,10 @@ function rollPool(pool) {
     });
   });
 
-  // Triumph/Despair contribute to the net success/failure tally (standard convention)
-  // but are also reported as their own raw counts for their special-effect triggers.
+  // Triumph and Despair each carry a Success/Failure component that pools with all
+  // other Successes/Failures and CAN be canceled out — but the Triumph/Despair itself
+  // is reported in full below (totals.TR / totals.D) and is never canceled, regardless
+  // of the net Success/Failure outcome. Confirmed against the actual rule, not assumed.
   const netSuccess = (totals.S + totals.TR) - (totals.F + totals.D);
   const netAdvantage = totals.A - totals.T;
 
