@@ -210,6 +210,7 @@ function renderEnemyRows() {
   el.innerHTML = builderEnemyRows.map((row, i) => `
     <div class="encounter-row">
       <input type="text" class="builder-enemy-name" data-index="${i}" placeholder="Enemy name" value="${row.name}" />
+      <input type="text" class="builder-enemy-type" data-index="${i}" placeholder="Type (shared slot)" value="${row.enemyType}" />
       <select class="builder-enemy-zone" data-index="${i}">
         ${zones.map((z) => `<option value="${z}" ${z === row.zone ? "selected" : ""}>${z}</option>`).join("")}
       </select>
@@ -219,6 +220,9 @@ function renderEnemyRows() {
 
   el.querySelectorAll(".builder-enemy-name").forEach((input) => {
     input.addEventListener("input", (e) => { builderEnemyRows[e.target.dataset.index].name = e.target.value; });
+  });
+  el.querySelectorAll(".builder-enemy-type").forEach((input) => {
+    input.addEventListener("input", (e) => { builderEnemyRows[e.target.dataset.index].enemyType = e.target.value; });
   });
   el.querySelectorAll(".builder-enemy-zone").forEach((sel) => {
     sel.addEventListener("change", (e) => { builderEnemyRows[e.target.dataset.index].zone = e.target.value; });
@@ -236,7 +240,7 @@ document.getElementById("cancel-encounter-btn").addEventListener("click", () => 
   document.getElementById("encounter-builder").classList.add("hidden");
 });
 document.getElementById("add-enemy-row-btn").addEventListener("click", () => {
-  builderEnemyRows.push({ name: "", zone: currentSceneZones()[0] });
+  builderEnemyRows.push({ name: "", enemyType: "", zone: currentSceneZones()[0] });
   renderEnemyRows();
 });
 
@@ -249,11 +253,17 @@ document.getElementById("begin-encounter-btn").addEventListener("click", async (
       zone: document.querySelector(`.builder-player-zone[data-uid="${cb.dataset.uid}"]`).value
     }));
 
-  const enemyEntries = builderEnemyRows.filter((row) => row.name.trim());
+  const enemyEntries = builderEnemyRows
+    .filter((row) => row.name.trim())
+    .map((row) => ({ ...row, enemyType: row.enemyType.trim() || row.name.trim() }));
+
+  let pcTokenIds = [];
+  let enemyTypeToTokenIds = {};
 
   await withActiveScene((tokens) => {
     const updated = [...tokens];
-    const order = [];
+    pcTokenIds = [];
+    enemyTypeToTokenIds = {};
 
     playerEntries.forEach((p) => {
       let token = updated.find((t) => t.ownerUid === p.uid);
@@ -263,24 +273,27 @@ document.getElementById("begin-encounter-btn").addEventListener("click", async (
         token = { id: `pc-${p.uid}`, name: p.name, ownerUid: p.uid, isNPC: false, zone: p.zone };
         updated.push(token);
       }
-      order.push(token.id);
+      pcTokenIds.push(token.id);
     });
 
     enemyEntries.forEach((e) => {
-      const token = { id: `npc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, name: e.name.trim(), ownerUid: null, isNPC: true, zone: e.zone };
+      const token = { id: `npc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, name: e.name.trim(), ownerUid: null, isNPC: true, zone: e.zone, enemyType: e.enemyType };
       updated.push(token);
-      order.push(token.id);
+      (enemyTypeToTokenIds[e.enemyType] ||= []).push(token.id);
     });
 
-    pendingEncounterOrder = order;
     return updated;
   });
 
-  await setEncounter({ active: true, order: pendingEncounterOrder, currentIndex: 0, round: 1 });
+  // One slot per PC (occupant chosen live each round) + one slot per distinct enemy type (fixed membership)
+  const slots = [
+    ...pcTokenIds.map(() => ({ type: "pc", occupantTokenId: null })),
+    ...Object.entries(enemyTypeToTokenIds).map(([enemyType, tokenIds]) => ({ type: "npc", enemyType, tokenIds }))
+  ];
+
+  await setEncounter({ active: true, round: 1, currentSlotIndex: 0, slots });
   document.getElementById("encounter-builder").classList.add("hidden");
 });
-
-let pendingEncounterOrder = [];
 
 function currentSceneZones() {
   return latestSceneData ? (latestSceneData.zones || DEFAULT_ZONES) : DEFAULT_ZONES;
@@ -294,30 +307,48 @@ async function setEncounter(encounter) {
 
 document.getElementById("next-turn-btn").addEventListener("click", async () => {
   const enc = latestSceneData?.encounter;
-  if (!enc || !enc.order.length) return;
-  let nextIndex = enc.currentIndex + 1;
+  if (!enc || !enc.slots.length) return;
+
+  const current = enc.slots[enc.currentSlotIndex];
+  if (current.type === "pc" && !current.occupantTokenId) {
+    alert("Pick who's acting in this slot before moving on.");
+    return;
+  }
+
+  let nextIndex = enc.currentSlotIndex + 1;
   let round = enc.round;
-  if (nextIndex >= enc.order.length) {
+  let slots = enc.slots;
+
+  if (nextIndex >= slots.length) {
     nextIndex = 0;
     round += 1;
+    slots = slots.map((s) => s.type === "pc" ? { ...s, occupantTokenId: null } : s);
   }
-  await setEncounter({ ...enc, currentIndex: nextIndex, round });
+
+  await setEncounter({ ...enc, slots, currentSlotIndex: nextIndex, round });
 });
 
 document.getElementById("end-encounter-btn").addEventListener("click", async () => {
   if (confirm("End this encounter? The initiative order will be cleared.")) {
-    await setEncounter({ active: false, order: [], currentIndex: 0, round: 1 });
+    await setEncounter({ active: false, round: 1, currentSlotIndex: 0, slots: [] });
   }
 });
 
 function moveInitiative(index, direction) {
   const enc = latestSceneData?.encounter;
   if (!enc) return;
-  const order = [...enc.order];
+  const slots = [...enc.slots];
   const target = index + direction;
-  if (target < 0 || target >= order.length) return;
-  [order[index], order[target]] = [order[target], order[index]];
-  setEncounter({ ...enc, order });
+  if (target < 0 || target >= slots.length) return;
+  [slots[index], slots[target]] = [slots[target], slots[index]];
+  setEncounter({ ...enc, slots });
+}
+
+function assignSlotOccupant(slotIndex, tokenId) {
+  const enc = latestSceneData?.encounter;
+  if (!enc) return;
+  const slots = enc.slots.map((s, i) => i === slotIndex ? { ...s, occupantTokenId: tokenId || null } : s);
+  setEncounter({ ...enc, slots });
 }
 
 function renderInitiative(scene) {
@@ -328,7 +359,7 @@ function renderInitiative(scene) {
   const endBtn = document.getElementById("end-encounter-btn");
   const roundLabel = document.getElementById("round-label");
 
-  if (!enc || !enc.active) {
+  if (!enc || !enc.active || !enc.slots.length) {
     listEl.innerHTML = `<li class="initiative-empty">No active encounter.</li>`;
     startBtn.classList.remove("hidden");
     nextBtn.classList.add("hidden");
@@ -346,13 +377,39 @@ function renderInitiative(scene) {
   const tokensById = {};
   (scene.tokens || []).forEach((t) => { tokensById[t.id] = t; });
 
-  listEl.innerHTML = enc.order.map((tokenId, i) => {
-    const token = tokensById[tokenId];
-    const name = token ? token.name : "(removed)";
-    const isCurrent = i === enc.currentIndex;
+  // PCs already occupying a slot this round aren't offered again in other pickers
+  const usedThisRound = new Set(enc.slots.filter((s) => s.type === "pc" && s.occupantTokenId).map((s) => s.occupantTokenId));
+  const allPcTokens = (scene.tokens || []).filter((t) => !t.isNPC);
+
+  listEl.innerHTML = enc.slots.map((slot, i) => {
+    const isCurrent = i === enc.currentSlotIndex;
+
+    if (slot.type === "npc") {
+      const names = slot.tokenIds.map((id) => tokensById[id]?.name).filter(Boolean).join(", ");
+      return `
+        <li class="initiative-entry token-npc ${isCurrent ? "current-turn" : ""}">
+          <span class="initiative-name">${slot.enemyType} <em class="slot-members">(${names})</em></span>
+          <span class="gm-only initiative-reorder">
+            <button type="button" class="reorder-btn" data-index="${i}" data-dir="-1">&uarr;</button>
+            <button type="button" class="reorder-btn" data-index="${i}" data-dir="1">&darr;</button>
+          </span>
+        </li>
+      `;
+    }
+
+    // PC slot
+    const occupant = slot.occupantTokenId ? tokensById[slot.occupantTokenId] : null;
+    const availableForThisSlot = allPcTokens.filter((t) => !usedThisRound.has(t.id) || t.id === slot.occupantTokenId);
+
     return `
-      <li class="initiative-entry ${isCurrent ? "current-turn" : ""} ${token?.isNPC ? "token-npc" : "token-pc"}">
-        <span class="initiative-name">${name}</span>
+      <li class="initiative-entry token-pc ${isCurrent ? "current-turn" : ""}">
+        <span class="initiative-name">
+          ${occupant ? occupant.name : '<em class="slot-unassigned">Choose who acts\u2026</em>'}
+        </span>
+        <select class="pc-slot-select" data-slot-index="${i}">
+          <option value="">\u2014</option>
+          ${availableForThisSlot.map((t) => `<option value="${t.id}" ${t.id === slot.occupantTokenId ? "selected" : ""}>${t.name}</option>`).join("")}
+        </select>
         <span class="gm-only initiative-reorder">
           <button type="button" class="reorder-btn" data-index="${i}" data-dir="-1">&uarr;</button>
           <button type="button" class="reorder-btn" data-index="${i}" data-dir="1">&darr;</button>
@@ -363,6 +420,9 @@ function renderInitiative(scene) {
 
   listEl.querySelectorAll(".reorder-btn").forEach((btn) => {
     btn.addEventListener("click", () => moveInitiative(Number(btn.dataset.index), Number(btn.dataset.dir)));
+  });
+  listEl.querySelectorAll(".pc-slot-select").forEach((sel) => {
+    sel.addEventListener("change", (e) => assignSlotOccupant(Number(e.target.dataset.slotIndex), e.target.value));
   });
 }
 
