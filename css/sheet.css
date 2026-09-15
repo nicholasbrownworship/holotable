@@ -281,6 +281,34 @@ body:not(.is-gm) .gm-only {
 
 .token-name { flex: 1; }
 
+.token-vitals {
+  display: flex;
+  gap: 6px;
+}
+
+.token-vital {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.token-vital-input {
+  width: 32px;
+  padding: 2px 3px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  text-align: center;
+  font-size: 0.7rem;
+}
+
+.token-vital-max {
+  color: var(--text-dim);
+}
+
 .token-zone-select {
   font-size: 0.7rem;
   padding: 2px 4px;

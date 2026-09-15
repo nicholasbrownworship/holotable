@@ -148,6 +148,9 @@ function renderActiveScene(scene) {
   document.querySelectorAll(".token-zone-select").forEach((sel) => {
     sel.addEventListener("change", (e) => moveToken(e.target.dataset.tokenId, e.target.value));
   });
+  document.querySelectorAll(".token-vital-input").forEach((input) => {
+    input.addEventListener("change", (e) => updateTokenVital(e.target.dataset.tokenId, e.target.dataset.field, e.target.value));
+  });
   document.querySelectorAll(".remove-token-btn").forEach((btn) => {
     btn.addEventListener("click", () => removeToken(btn.dataset.tokenId));
   });
@@ -158,9 +161,27 @@ function renderToken(token, zones) {
   const canControl = activeRole === "gm" || token.ownerUid === uid;
   const zoneOptions = zones.map((z) => `<option value="${z}" ${z === token.zone ? "selected" : ""}>${z}</option>`).join("");
 
+  const vitalsHtml = !token.isNPC ? `
+    <div class="token-vitals">
+      <label class="token-vital">
+        <span>W</span>
+        <input type="number" min="0" class="token-vital-input" data-token-id="${token.id}" data-field="currentWounds"
+          value="${token.currentWounds ?? 0}" ${canControl ? "" : "disabled"} />
+        <span class="token-vital-max">/ ${token.maxWounds ?? "?"}</span>
+      </label>
+      <label class="token-vital">
+        <span>S</span>
+        <input type="number" min="0" class="token-vital-input" data-token-id="${token.id}" data-field="currentStrain"
+          value="${token.currentStrain ?? 0}" ${canControl ? "" : "disabled"} />
+        <span class="token-vital-max">/ ${token.maxStrain ?? "?"}</span>
+      </label>
+    </div>
+  ` : "";
+
   return `
     <div class="token-chip ${token.isNPC ? "token-npc" : "token-pc"}">
       <span class="token-name">${token.name}</span>
+      ${vitalsHtml}
       ${canControl ? `
         <select class="token-zone-select" data-token-id="${token.id}">${zoneOptions}</select>
         ${activeRole === "gm" ? `<button class="remove-token-btn" data-token-id="${token.id}">&times;</button>` : ""}
@@ -253,6 +274,14 @@ document.getElementById("begin-encounter-btn").addEventListener("click", async (
       zone: document.querySelector(`.builder-player-zone[data-uid="${cb.dataset.uid}"]`).value
     }));
 
+  // Pull each player's Wound/Strain Threshold from their sheet so new tokens start with real max values
+  const thresholdsByUid = {};
+  await Promise.all(playerEntries.map(async (p) => {
+    const charDoc = await db.collection("campaigns").doc(activeCampaignId).collection("characters").doc(p.uid).get();
+    const data = charDoc.exists ? charDoc.data() : {};
+    thresholdsByUid[p.uid] = { maxWounds: data.woundThreshold || 0, maxStrain: data.strainThreshold || 0 };
+  }));
+
   const enemyEntries = builderEnemyRows
     .filter((row) => row.name.trim())
     .map((row) => ({ ...row, enemyType: row.enemyType.trim() || row.name.trim() }));
@@ -270,7 +299,8 @@ document.getElementById("begin-encounter-btn").addEventListener("click", async (
       if (token) {
         token.zone = p.zone;
       } else {
-        token = { id: `pc-${p.uid}`, name: p.name, ownerUid: p.uid, isNPC: false, zone: p.zone };
+        const { maxWounds, maxStrain } = thresholdsByUid[p.uid];
+        token = { id: `pc-${p.uid}`, name: p.name, ownerUid: p.uid, isNPC: false, zone: p.zone, maxWounds, maxStrain, currentWounds: 0, currentStrain: 0 };
         updated.push(token);
       }
       pcTokenIds.push(token.id);
@@ -443,6 +473,11 @@ function moveToken(tokenId, newZone) {
   withActiveScene((tokens) => tokens.map((t) => t.id === tokenId ? { ...t, zone: newZone } : t));
 }
 
+function updateTokenVital(tokenId, field, value) {
+  const num = Math.max(0, Number(value) || 0);
+  withActiveScene((tokens) => tokens.map((t) => t.id === tokenId ? { ...t, [field]: num } : t));
+}
+
 async function removeToken(tokenId) {
   if (!currentActiveSceneId) return;
   const ref = db.collection("campaigns").doc(activeCampaignId).collection("scenes").doc(currentActiveSceneId);
@@ -488,12 +523,18 @@ document.getElementById("join-scene-btn").addEventListener("click", () => {
   const uid = auth.currentUser.uid;
   const charName = document.getElementById("char-name").value.trim();
   const name = charName || currentUserProfile.displayName;
+  const maxWounds = Number(document.getElementById("char-wound-threshold").value) || 0;
+  const maxStrain = Number(document.getElementById("char-strain-threshold").value) || 0;
   withActiveScene((tokens) => [...tokens, {
     id: `${uid}-${Date.now()}`,
     name,
     ownerUid: uid,
     isNPC: false,
-    zone: DEFAULT_ZONES[0]
+    zone: DEFAULT_ZONES[0],
+    maxWounds,
+    maxStrain,
+    currentWounds: 0,
+    currentStrain: 0
   }]);
 });
 
