@@ -190,6 +190,104 @@ function renderToken(token, zones) {
   `;
 }
 
+// --- Click-to-ping on the scene image ---
+let pingsUnsub = null;
+const renderedPingIds = new Set();
+
+document.getElementById("ping-layer").addEventListener("click", (e) => {
+  if (!currentActiveSceneId) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+  const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+  db.collection("campaigns").doc(activeCampaignId).collection("scenes").doc(currentActiveSceneId)
+    .collection("pings").add({
+      x: xPct,
+      y: yPct,
+      name: currentUserProfile.displayName,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then((ref) => {
+      setTimeout(() => ref.delete().catch(() => {}), 2500);
+    });
+});
+
+function startPings(campaignId, sceneId) {
+  stopPings();
+  renderedPingIds.clear();
+  pingsUnsub = db.collection("campaigns").doc(campaignId).collection("scenes").doc(sceneId).collection("pings")
+    .onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added" && !renderedPingIds.has(change.doc.id)) {
+          renderedPingIds.add(change.doc.id);
+          renderPingMarker(change.doc.data());
+        }
+      });
+    });
+}
+
+function stopPings() {
+  if (pingsUnsub) { pingsUnsub(); pingsUnsub = null; }
+  document.getElementById("ping-layer").innerHTML = "";
+}
+
+function renderPingMarker(ping) {
+  const layer = document.getElementById("ping-layer");
+  const marker = document.createElement("div");
+  marker.className = "ping-marker";
+  marker.style.left = `${ping.x}%`;
+  marker.style.top = `${ping.y}%`;
+  marker.innerHTML = `<span class="ping-dot"></span><span class="ping-label">${ping.name}</span>`;
+  layer.appendChild(marker);
+  setTimeout(() => marker.remove(), 2200);
+}
+
+// --- Text chat ---
+let chatUnsub = null;
+
+document.getElementById("chat-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text || !activeCampaignId) return;
+  db.collection("campaigns").doc(activeCampaignId).collection("messages").add({
+    senderUid: auth.currentUser.uid,
+    senderName: currentUserProfile.displayName,
+    text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  input.value = "";
+});
+
+function startChat(campaignId) {
+  stopChat();
+  chatUnsub = db.collection("campaigns").doc(campaignId).collection("messages")
+    .orderBy("createdAt", "desc")
+    .limit(100)
+    .onSnapshot((snapshot) => {
+      const messages = [];
+      snapshot.forEach((doc) => messages.push(doc.data()));
+      messages.reverse();
+      const logEl = document.getElementById("chat-log");
+      logEl.innerHTML = messages.map((m) => `
+        <li class="chat-message">
+          <strong>${m.senderName}:</strong> <span>${escapeHtml(m.text)}</span>
+        </li>
+      `).join("");
+      logEl.scrollTop = logEl.scrollHeight;
+    });
+}
+
+function stopChat() {
+  if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // --- Encounter builder (GM: pick players + add enemies, place into starting zones) ---
 let builderEnemyRows = [];
 
@@ -569,6 +667,7 @@ function startMapView(campaignId) {
     currentActiveSceneId = data.activeSceneId || null;
 
     if (activeSceneUnsub) activeSceneUnsub();
+    stopPings();
     if (!currentActiveSceneId) {
       renderActiveScene(null);
       return;
@@ -577,13 +676,18 @@ function startMapView(campaignId) {
       .onSnapshot((sceneDoc) => {
         renderActiveScene(sceneDoc.exists ? { id: sceneDoc.id, ...sceneDoc.data() } : null);
       });
+    startPings(campaignId, currentActiveSceneId);
   });
+
+  startChat(campaignId);
 }
 
 function stopMapView() {
   if (sceneListUnsub) { sceneListUnsub(); sceneListUnsub = null; }
   if (campaignDocUnsub) { campaignDocUnsub(); campaignDocUnsub = null; }
   if (activeSceneUnsub) { activeSceneUnsub(); activeSceneUnsub = null; }
+  stopPings();
+  stopChat();
   currentActiveSceneId = null;
   latestSceneData = null;
   document.getElementById("encounter-builder").classList.add("hidden");

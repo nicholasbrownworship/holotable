@@ -188,6 +188,7 @@
           <button class="sub-nav-btn active" data-subnav="sheet-panel-view">Character Sheet</button>
           <button class="sub-nav-btn" data-subnav="dice-panel-view">Dice Pool</button>
           <button class="sub-nav-btn" data-subnav="map-panel-view">Map</button>
+          <button class="sub-nav-btn" data-subnav="chat-panel-view">Chat</button>
         </nav>
       </div>
 
@@ -320,11 +321,24 @@
                   <ul id="initiative-list" class="initiative-list"></ul>
                 </div>
 
-                <img id="active-scene-image" class="scene-image" alt="Current scene" />
+                <div class="scene-image-wrap">
+                  <img id="active-scene-image" class="scene-image" alt="Current scene" />
+                  <div id="ping-layer" class="ping-layer"></div>
+                </div>
                 <div id="zone-columns" class="zone-sidebar"></div>
               </div>
             </div>
           </section>
+        </div>
+      </div>
+
+      <div id="chat-panel-view" class="sub-view hidden">
+        <div class="chat-panel">
+          <ul id="chat-log" class="chat-log"></ul>
+          <form id="chat-form" class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Message the table..." autocomplete="off" required />
+            <button type="submit" class="primary-btn small">Send</button>
+          </form>
         </div>
       </div>
 

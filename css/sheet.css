@@ -326,6 +326,95 @@ body:not(.is-gm) .gm-only {
   font-size: 0.9rem;
 }
 
+.scene-image-wrap {
+  position: relative;
+}
+
+.ping-layer {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+}
+
+.ping-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: ping-fade 2.2s ease-out forwards;
+}
+
+.ping-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 4px rgba(217, 164, 65, 0.25);
+}
+
+.ping-label {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: rgba(14, 16, 19, 0.8);
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+@keyframes ping-fade {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  30% { transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; }
+}
+
+/* --- Chat --- */
+.chat-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  max-width: 700px;
+}
+
+.chat-log {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 420px;
+  overflow-y: auto;
+}
+
+.chat-message {
+  font-size: 0.85rem;
+}
+
+.chat-message strong {
+  color: var(--accent);
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input-bar input {
+  flex: 1;
+  padding: 9px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
 .name-edit-input {
   background: var(--bg);
   border: 1px solid var(--accent-dim);
@@ -591,6 +680,8 @@ body:not(.is-gm) .gm-only {
 .library-panel.full-span {
   grid-column: 1 / -1;
 }
+
+.talent-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
@@ -633,6 +724,7 @@ body:not(.is-gm) .gm-only {
   .talent-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+.content-list {
   list-style: none;
   margin: 0;
   padding: 0;
