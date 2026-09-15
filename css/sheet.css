@@ -492,6 +492,77 @@ body:not(.is-gm) .gm-only {
   font-size: 0.85rem;
 }
 
+/* --- Audio --- */
+.audio-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.audio-channel-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.audio-channel-panel h3 {
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.audio-transport {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.yt-player-hidden {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.volume-row label {
+  width: 90px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.volume-row input[type="range"] {
+  flex: 1;
+}
+
+.sfx-trigger-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sfx-trigger-btn {
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sfx-trigger-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .name-edit-input {
   background: var(--bg);
   border: 1px solid var(--accent-dim);

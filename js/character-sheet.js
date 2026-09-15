@@ -16,6 +16,7 @@ function enterCampaign(campaignId, role) {
   startRollLog(campaignId);
   startMapView(campaignId);
   startChat(campaignId);
+  startAudio(campaignId);
 }
 
 function exitCampaign() {
@@ -23,6 +24,7 @@ function exitCampaign() {
   stopRollLog();
   stopMapView();
   stopChat();
+  stopAudio();
   activeCampaignId = null;
   activeRole = null;
   document.getElementById("campaign-workspace-view").classList.add("hidden");

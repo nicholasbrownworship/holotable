@@ -188,6 +188,7 @@
           <button class="sub-nav-btn active" data-subnav="sheet-panel-view">Character Sheet</button>
           <button class="sub-nav-btn" data-subnav="dice-panel-view">Dice Pool</button>
           <button class="sub-nav-btn" data-subnav="map-panel-view">Map</button>
+          <button class="sub-nav-btn" data-subnav="audio-panel-view">Audio</button>
           <button class="sub-nav-btn" data-subnav="chat-panel-view">Chat</button>
         </nav>
       </div>
@@ -332,6 +333,71 @@
         </div>
       </div>
 
+      <div id="audio-panel-view" class="sub-view hidden">
+        <div class="audio-layout">
+          <section class="audio-channel-panel gm-only">
+            <h3>Music</h3>
+            <form id="music-load-form" class="inline-form">
+              <input type="text" id="music-url-input" placeholder="Paste a YouTube link" required />
+              <button type="submit" class="secondary-btn small">Load</button>
+            </form>
+            <div class="audio-transport">
+              <button type="button" id="music-play-btn" class="secondary-btn small">Play</button>
+              <button type="button" id="music-pause-btn" class="secondary-btn small">Pause</button>
+              <button type="button" id="music-stop-btn" class="text-btn">Stop</button>
+            </div>
+          </section>
+
+          <section class="audio-channel-panel gm-only">
+            <h3>Ambience</h3>
+            <form id="ambience-load-form" class="inline-form">
+              <input type="text" id="ambience-url-input" placeholder="Paste a YouTube link" required />
+              <button type="submit" class="secondary-btn small">Load</button>
+            </form>
+            <div class="audio-transport">
+              <button type="button" id="ambience-play-btn" class="secondary-btn small">Play</button>
+              <button type="button" id="ambience-pause-btn" class="secondary-btn small">Pause</button>
+              <button type="button" id="ambience-stop-btn" class="text-btn">Stop</button>
+            </div>
+          </section>
+
+          <section class="audio-channel-panel gm-only">
+            <h3>Sound effects</h3>
+            <form id="sfx-upload-form" class="library-form">
+              <input type="text" id="sfx-name" placeholder="Name (e.g. Blaster shot)" required />
+              <input type="file" id="sfx-file-input" accept="audio/*" required />
+              <button type="submit" class="secondary-btn small">Add to library</button>
+              <span id="sfx-upload-status" class="upload-status"></span>
+            </form>
+          </section>
+
+          <section class="audio-channel-panel">
+            <h3>Trigger a sound effect</h3>
+            <div id="sfx-trigger-list" class="sfx-trigger-list"></div>
+          </section>
+
+          <section class="audio-channel-panel">
+            <h3>Your volume</h3>
+            <button id="enable-audio-btn" class="secondary-btn small">Enable audio</button>
+            <div class="volume-row">
+              <label for="music-volume">Music</label>
+              <input type="range" id="music-volume" min="0" max="100" value="60" />
+            </div>
+            <div class="volume-row">
+              <label for="ambience-volume">Ambience</label>
+              <input type="range" id="ambience-volume" min="0" max="100" value="60" />
+            </div>
+            <div class="volume-row">
+              <label for="sfx-volume">Sound effects</label>
+              <input type="range" id="sfx-volume" min="0" max="100" value="80" />
+            </div>
+          </section>
+        </div>
+
+        <div id="yt-music-player" class="yt-player-hidden"></div>
+        <div id="yt-ambience-player" class="yt-player-hidden"></div>
+      </div>
+
       <div id="chat-panel-view" class="sub-view hidden">
         <div class="chat-panel">
           <ul id="full-chat-log" class="chat-log"></ul>
@@ -447,6 +513,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/content.js"></script>
@@ -454,6 +521,7 @@
   <script src="js/character-sheet.js"></script>
   <script src="js/map.js"></script>
   <script src="js/chat.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/dice-roller.js"></script>
   <script src="js/campaigns.js"></script>
   <script src="js/nav.js"></script>
