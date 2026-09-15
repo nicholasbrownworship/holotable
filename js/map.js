@@ -112,6 +112,7 @@ function renderSceneList(scenes) {
 function renderActiveScene(scene) {
   const noneEl = document.getElementById("no-active-scene");
   const contentEl = document.getElementById("active-scene-content");
+  latestSceneData = scene;
 
   if (!scene) {
     noneEl.classList.remove("hidden");
@@ -123,6 +124,7 @@ function renderActiveScene(scene) {
   contentEl.classList.remove("hidden");
   document.getElementById("active-scene-name").textContent = scene.name;
   document.getElementById("active-scene-image").src = scene.imageData;
+  renderInitiative(scene);
 
   const uid = auth.currentUser.uid;
   const myToken = (scene.tokens || []).find((t) => t.ownerUid === uid);
@@ -166,6 +168,205 @@ function renderToken(token, zones) {
     </div>
   `;
 }
+
+// --- Encounter builder (GM: pick players + add enemies, place into starting zones) ---
+let builderEnemyRows = [];
+
+async function openEncounterBuilder() {
+  const campaignDoc = await db.collection("campaigns").doc(activeCampaignId).get();
+  const memberIds = (campaignDoc.data() || {}).memberIds || [];
+  const gmId = (campaignDoc.data() || {}).gmId;
+
+  const profiles = await Promise.all(
+    memberIds.filter((id) => id !== gmId).map(async (uid) => {
+      const userDoc = await db.collection("users").doc(uid).get();
+      return { uid, displayName: userDoc.exists ? userDoc.data().displayName : uid };
+    })
+  );
+
+  const zones = currentSceneZones();
+  const playersEl = document.getElementById("encounter-builder-players");
+  playersEl.innerHTML = profiles.map((p) => `
+    <div class="encounter-row">
+      <label class="checkbox-field">
+        <input type="checkbox" class="builder-player-check" data-uid="${p.uid}" data-name="${p.displayName}" checked />
+        ${p.displayName}
+      </label>
+      <select class="builder-player-zone" data-uid="${p.uid}">
+        ${zones.map((z) => `<option value="${z}">${z}</option>`).join("")}
+      </select>
+    </div>
+  `).join("") || `<p class="library-note">No players in this campaign yet.</p>`;
+
+  builderEnemyRows = [];
+  renderEnemyRows();
+
+  document.getElementById("encounter-builder").classList.remove("hidden");
+}
+
+function renderEnemyRows() {
+  const zones = currentSceneZones();
+  const el = document.getElementById("encounter-builder-enemies");
+  el.innerHTML = builderEnemyRows.map((row, i) => `
+    <div class="encounter-row">
+      <input type="text" class="builder-enemy-name" data-index="${i}" placeholder="Enemy name" value="${row.name}" />
+      <select class="builder-enemy-zone" data-index="${i}">
+        ${zones.map((z) => `<option value="${z}" ${z === row.zone ? "selected" : ""}>${z}</option>`).join("")}
+      </select>
+      <button type="button" class="remove-row-btn builder-remove-enemy" data-index="${i}">&times;</button>
+    </div>
+  `).join("");
+
+  el.querySelectorAll(".builder-enemy-name").forEach((input) => {
+    input.addEventListener("input", (e) => { builderEnemyRows[e.target.dataset.index].name = e.target.value; });
+  });
+  el.querySelectorAll(".builder-enemy-zone").forEach((sel) => {
+    sel.addEventListener("change", (e) => { builderEnemyRows[e.target.dataset.index].zone = e.target.value; });
+  });
+  el.querySelectorAll(".builder-remove-enemy").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      builderEnemyRows.splice(Number(e.target.dataset.index), 1);
+      renderEnemyRows();
+    });
+  });
+}
+
+document.getElementById("start-encounter-btn").addEventListener("click", openEncounterBuilder);
+document.getElementById("cancel-encounter-btn").addEventListener("click", () => {
+  document.getElementById("encounter-builder").classList.add("hidden");
+});
+document.getElementById("add-enemy-row-btn").addEventListener("click", () => {
+  builderEnemyRows.push({ name: "", zone: currentSceneZones()[0] });
+  renderEnemyRows();
+});
+
+document.getElementById("begin-encounter-btn").addEventListener("click", async () => {
+  const playerEntries = Array.from(document.querySelectorAll(".builder-player-check"))
+    .filter((cb) => cb.checked)
+    .map((cb) => ({
+      uid: cb.dataset.uid,
+      name: cb.dataset.name,
+      zone: document.querySelector(`.builder-player-zone[data-uid="${cb.dataset.uid}"]`).value
+    }));
+
+  const enemyEntries = builderEnemyRows.filter((row) => row.name.trim());
+
+  await withActiveScene((tokens) => {
+    const updated = [...tokens];
+    const order = [];
+
+    playerEntries.forEach((p) => {
+      let token = updated.find((t) => t.ownerUid === p.uid);
+      if (token) {
+        token.zone = p.zone;
+      } else {
+        token = { id: `pc-${p.uid}`, name: p.name, ownerUid: p.uid, isNPC: false, zone: p.zone };
+        updated.push(token);
+      }
+      order.push(token.id);
+    });
+
+    enemyEntries.forEach((e) => {
+      const token = { id: `npc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, name: e.name.trim(), ownerUid: null, isNPC: true, zone: e.zone };
+      updated.push(token);
+      order.push(token.id);
+    });
+
+    pendingEncounterOrder = order;
+    return updated;
+  });
+
+  await setEncounter({ active: true, order: pendingEncounterOrder, currentIndex: 0, round: 1 });
+  document.getElementById("encounter-builder").classList.add("hidden");
+});
+
+let pendingEncounterOrder = [];
+
+function currentSceneZones() {
+  return latestSceneData ? (latestSceneData.zones || DEFAULT_ZONES) : DEFAULT_ZONES;
+}
+
+async function setEncounter(encounter) {
+  if (!currentActiveSceneId) return;
+  await db.collection("campaigns").doc(activeCampaignId).collection("scenes").doc(currentActiveSceneId)
+    .update({ encounter });
+}
+
+document.getElementById("next-turn-btn").addEventListener("click", async () => {
+  const enc = latestSceneData?.encounter;
+  if (!enc || !enc.order.length) return;
+  let nextIndex = enc.currentIndex + 1;
+  let round = enc.round;
+  if (nextIndex >= enc.order.length) {
+    nextIndex = 0;
+    round += 1;
+  }
+  await setEncounter({ ...enc, currentIndex: nextIndex, round });
+});
+
+document.getElementById("end-encounter-btn").addEventListener("click", async () => {
+  if (confirm("End this encounter? The initiative order will be cleared.")) {
+    await setEncounter({ active: false, order: [], currentIndex: 0, round: 1 });
+  }
+});
+
+function moveInitiative(index, direction) {
+  const enc = latestSceneData?.encounter;
+  if (!enc) return;
+  const order = [...enc.order];
+  const target = index + direction;
+  if (target < 0 || target >= order.length) return;
+  [order[index], order[target]] = [order[target], order[index]];
+  setEncounter({ ...enc, order });
+}
+
+function renderInitiative(scene) {
+  const enc = scene.encounter;
+  const listEl = document.getElementById("initiative-list");
+  const startBtn = document.getElementById("start-encounter-btn");
+  const nextBtn = document.getElementById("next-turn-btn");
+  const endBtn = document.getElementById("end-encounter-btn");
+  const roundLabel = document.getElementById("round-label");
+
+  if (!enc || !enc.active) {
+    listEl.innerHTML = `<li class="initiative-empty">No active encounter.</li>`;
+    startBtn.classList.remove("hidden");
+    nextBtn.classList.add("hidden");
+    endBtn.classList.add("hidden");
+    roundLabel.classList.add("hidden");
+    return;
+  }
+
+  startBtn.classList.add("hidden");
+  nextBtn.classList.remove("hidden");
+  endBtn.classList.remove("hidden");
+  roundLabel.classList.remove("hidden");
+  roundLabel.textContent = `Round ${enc.round}`;
+
+  const tokensById = {};
+  (scene.tokens || []).forEach((t) => { tokensById[t.id] = t; });
+
+  listEl.innerHTML = enc.order.map((tokenId, i) => {
+    const token = tokensById[tokenId];
+    const name = token ? token.name : "(removed)";
+    const isCurrent = i === enc.currentIndex;
+    return `
+      <li class="initiative-entry ${isCurrent ? "current-turn" : ""} ${token?.isNPC ? "token-npc" : "token-pc"}">
+        <span class="initiative-name">${name}</span>
+        <span class="gm-only initiative-reorder">
+          <button type="button" class="reorder-btn" data-index="${i}" data-dir="-1">&uarr;</button>
+          <button type="button" class="reorder-btn" data-index="${i}" data-dir="1">&darr;</button>
+        </span>
+      </li>
+    `;
+  }).join("");
+
+  listEl.querySelectorAll(".reorder-btn").forEach((btn) => {
+    btn.addEventListener("click", () => moveInitiative(Number(btn.dataset.index), Number(btn.dataset.dir)));
+  });
+}
+
+let latestSceneData = null;
 
 async function withActiveScene(mutateFn) {
   if (!currentActiveSceneId) return;
@@ -246,4 +447,6 @@ function stopMapView() {
   if (campaignDocUnsub) { campaignDocUnsub(); campaignDocUnsub = null; }
   if (activeSceneUnsub) { activeSceneUnsub(); activeSceneUnsub = null; }
   currentActiveSceneId = null;
+  latestSceneData = null;
+  document.getElementById("encounter-builder").classList.add("hidden");
 }

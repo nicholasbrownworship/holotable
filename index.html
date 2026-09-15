@@ -293,7 +293,33 @@
               <div id="join-scene-bar" class="hidden">
                 <button id="join-scene-btn" class="secondary-btn small">Add my character to this scene</button>
               </div>
+
+              <div id="encounter-builder" class="encounter-builder hidden gm-only">
+                <h4>Start encounter</h4>
+                <p class="library-note">Pick which players are in this fight and what zone they start in, then add any enemies.</p>
+                <div id="encounter-builder-players" class="encounter-builder-list"></div>
+                <div id="encounter-builder-enemies" class="encounter-builder-list"></div>
+                <button type="button" id="add-enemy-row-btn" class="text-btn">+ Add enemy</button>
+                <div class="encounter-builder-actions">
+                  <button type="button" id="begin-encounter-btn" class="primary-btn small">Begin encounter</button>
+                  <button type="button" id="cancel-encounter-btn" class="text-btn">Cancel</button>
+                </div>
+              </div>
+
               <div class="scene-stage">
+                <div class="initiative-sidebar">
+                  <div class="initiative-header">
+                    <h4>Initiative</h4>
+                  </div>
+                  <div class="gm-only initiative-controls">
+                    <button id="start-encounter-btn" class="secondary-btn small">Start encounter</button>
+                    <button id="next-turn-btn" class="secondary-btn small hidden">Next turn</button>
+                    <button id="end-encounter-btn" class="text-btn hidden">End encounter</button>
+                  </div>
+                  <p id="round-label" class="round-label hidden"></p>
+                  <ul id="initiative-list" class="initiative-list"></ul>
+                </div>
+
                 <img id="active-scene-image" class="scene-image" alt="Current scene" />
                 <div id="zone-columns" class="zone-sidebar"></div>
               </div>
